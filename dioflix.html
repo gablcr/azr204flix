@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Filmes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+            margin: 10px;
+        }
+        .card h2 {
+            margin-top: 0;
+        }
+        .card p {
+            margin: 5px 0;
+        }
+        .details {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de Filmes</h1>
+    <div id="movies-container"></div>
+    <div class="details" id="movie-details"></div>
+
+    <script>
+        async function fetchMovies() {
+            try {
+                const response = await fetch('http://localhost:7071/api/all');
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar filmes');
+                }
+                const movies = await response.json();
+                const container = document.getElementById('movies-container');
+                container.innerHTML = '';
+                movies.forEach(movie => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <h2>${movie.title}</h2>
+                        <p>${movie.description}</p>
+                        <button onclick="fetchMovieDetails('${movie.id}')">Ver Detalhes</button>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        async function fetchMovieDetails(id) {
+            try {
+                const response = await fetch(`http://localhost:7071/api/detail?id=${id}`);
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar detalhes do filme');
+                }
+                const movie = await response.json();
+                const detailsContainer = document.getElementById('movie-details');
+                detailsContainer.innerHTML = `
+                    <div class="card">
+                        <h2>${movie.title}</h2>
+                        <p>${movie.description}</p>
+                        <p><strong>Diretor:</strong> ${movie.director}</p>
+                        <p><strong>Ano:</strong> ${movie.year}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        // Chama a função fetchMovies ao carregar a página
+        window.onload = fetchMovies;
+    </script>
+</body>
+</html>
